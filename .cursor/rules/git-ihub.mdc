@@ -1,0 +1,14 @@
+---
+description: Git y GitHub solo cuenta ihubreal; el agente no commitea
+alwaysApply: true
+---
+
+# Git I-Hub (ihubreal)
+
+- **No** ejecutes `git commit`, `git push`, ni `git amend` salvo que el usuario lo pida explicitamente en ese mensaje.
+- **Nunca** anadas `Co-authored-by: Cursor` ni commits que incluyan a cursoragent como contribuidor.
+- Los commits los hace el usuario con `gh` (cuenta activa **ihubreal**).
+- Autor de este repo (solo local): `ihubreal` / `contact.apexcapitalsystems@gmail.com`.
+- No uses la identidad JaimeP-0 ni co-autores del agente en commits.
+
+Cuando haya que publicar: deja el codigo listo y da los comandos para que el usuario commitee y pushee.

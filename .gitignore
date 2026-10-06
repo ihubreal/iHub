@@ -1,0 +1,7 @@
+.rbxsync-trash/
+.git-rewrite/
+obfuscated/
+tools/prometheus/
+tools/prometheus-cli/node_modules/
+tools/__pycache__/
+*.pyc
