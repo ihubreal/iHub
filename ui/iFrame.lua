@@ -1,15 +1,17 @@
 --[[ iFrame | UI framework I-Hub | fase 1: window holder ]]
 
 local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 
 local iFrame = {}
 
-iFrame.VERSION = "0.1.3"
+iFrame.VERSION = "0.1.4"
 iFrame.RAW = "https://raw.githubusercontent.com/ihubreal/iHub/refs/heads/main/ui/iFrame.lua"
 
 local WINDOW_SIZE = Vector2.new(560, 400)
 local WINDOW_POSITION = UDim2.fromScale(0.5, 0.5)
+local DRAG_SMOOTH_SPEED = 22
 
 local function getGuiParent()
 	if typeof(gethui) == "function" then
@@ -28,12 +30,17 @@ end
 local function bindWindowDrag(holder: Frame)
 	holder.Active = true
 	local dragging = false
-	local dragStart: Vector2? = nil
-	local startPos: UDim2? = nil
+	local dragMouseStart: Vector2? = nil
+	local dragPosStart: UDim2? = nil
+	local targetPos = holder.Position
 
 	local function isDragInput(input: InputObject)
 		return input.UserInputType == Enum.UserInputType.MouseButton1
 			or input.UserInputType == Enum.UserInputType.Touch
+	end
+
+	local function mousePosition()
+		return UserInputService:GetMouseLocation()
 	end
 
 	local began = holder.InputBegan:Connect(function(input)
@@ -41,35 +48,41 @@ local function bindWindowDrag(holder: Frame)
 			return
 		end
 		dragging = true
-		dragStart = input.Position
-		startPos = holder.Position
+		dragMouseStart = mousePosition()
+		dragPosStart = holder.Position
+		targetPos = holder.Position
 	end)
 
-	local changed = UserInputService.InputChanged:Connect(function(input)
-		if not dragging or not dragStart or not startPos then
-			return
+	local stepped = RunService.RenderStepped:Connect(function(dt)
+		if dragging and dragMouseStart and dragPosStart then
+			local delta = mousePosition() - dragMouseStart
+			targetPos = UDim2.new(
+				dragPosStart.X.Scale,
+				dragPosStart.X.Offset + delta.X,
+				dragPosStart.Y.Scale,
+				dragPosStart.Y.Offset + delta.Y
+			)
 		end
-		if input.UserInputType ~= Enum.UserInputType.MouseMovement and input.UserInputType ~= Enum.UserInputType.Touch then
-			return
-		end
-		local delta = input.Position - dragStart
+
+		local current = holder.Position
+		local alpha = 1 - math.exp(-DRAG_SMOOTH_SPEED * dt)
 		holder.Position = UDim2.new(
-			startPos.X.Scale,
-			startPos.X.Offset + delta.X,
-			startPos.Y.Scale,
-			startPos.Y.Offset + delta.Y
+			targetPos.X.Scale,
+			current.X.Offset + (targetPos.X.Offset - current.X.Offset) * alpha,
+			targetPos.Y.Scale,
+			current.Y.Offset + (targetPos.Y.Offset - current.Y.Offset) * alpha
 		)
 	end)
 
 	local ended = UserInputService.InputEnded:Connect(function(input)
 		if isDragInput(input) then
 			dragging = false
-			dragStart = nil
-			startPos = nil
+			dragMouseStart = nil
+			dragPosStart = nil
 		end
 	end)
 
-	return { began, changed, ended }
+	return { began, stepped, ended }
 end
 
 function iFrame.window(options)
