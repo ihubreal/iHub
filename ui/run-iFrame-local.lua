@@ -1,3 +1,7 @@
+﻿--[[
+	Copia pegada de ui/iFrame.lua para probar en local (un solo archivo, sin HttpGet/readfile).
+	Sincroniza manualmente cuando cambies iFrame.lua.
+]]
 --[[ iFrame | UI framework I-Hub ]]
 
 local Players = game:GetService("Players")
@@ -2454,4 +2458,123 @@ function iFrame.window(options)
 	return windowApi
 end
 
-return iFrame
+-- --- bootstrap local ---
+print("[iFrame local]", iFrame.VERSION)
+
+local function devLog(name: string, value: any)
+	print(string.lower(name) .. " " .. tostring(value))
+end
+
+local win = iFrame.window({
+	name = "eyeLib",
+	configIcon = "lucide:settings",
+	menuKey = Enum.KeyCode.RightControl,
+})
+
+local tabMain = win:CreateTab({ name = "Main", icon = "lucide:sliders-horizontal" })
+local handles = tabMain:Mount({
+	{ type = "section", title = "Acciones" },
+	{
+		type = "button",
+		title = "Probar",
+		callback = function()
+			devLog("Probar", "click")
+		end,
+	},
+	{
+		type = "toggle",
+		title = "Auto",
+		default = true,
+		id = "auto",
+		callback = function(on)
+			devLog("Auto", on)
+		end,
+	},
+	{
+		type = "slider",
+		title = "Velocidad",
+		min = 1,
+		max = 20,
+		default = 8,
+		id = "speed",
+		callback = function(value)
+			devLog("Velocidad", value)
+		end,
+	},
+	{ type = "section", title = "Datos" },
+	{
+		type = "dropdown",
+		title = "Modo",
+		options = { "Normal", "Rapido", "Seguro" },
+		default = "Normal",
+		callback = function(value)
+			devLog("Modo", value)
+		end,
+	},
+	{
+		type = "input",
+		title = "Nombre",
+		placeholder = "Escribe aqui...",
+		callback = function(text)
+			devLog("Nombre", text)
+		end,
+	},
+	{
+		type = "color",
+		title = "Tema",
+		default = Color3.fromRGB(88, 148, 255),
+		callback = function(c)
+			devLog(
+				"Tema",
+				string.format("#%02X%02X%02X", math.floor(c.R * 255), math.floor(c.G * 255), math.floor(c.B * 255))
+			)
+		end,
+	},
+	{ type = "status", title = "Estado", text = "Listo", id = "status" },
+})
+
+local tabExtra = win:CreateTab({ name = "Extra", icon = "lucide:layers" })
+tabExtra:Mount({
+	{ type = "text", text = "Segunda pestana. Mas controles aqui." },
+	{
+		type = "button",
+		title = "Actualizar estado",
+		callback = function()
+			if handles.status then
+				handles.status:SetText("OK " .. os.date("%X"))
+			end
+		end,
+	},
+})
+
+-- Rejoin dev (no forma parte de iFrame)
+do
+	local TeleportService = game:GetService("TeleportService")
+	local localPlayer = Players.LocalPlayer
+
+	local rejoinGui = Instance.new("ScreenGui")
+	rejoinGui.Name = "DevRejoin"
+	rejoinGui.ResetOnSpawn = false
+	rejoinGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+	rejoinGui.Parent = getGuiParent()
+
+	local rejoinButton = Instance.new("TextButton")
+	rejoinButton.Name = "Rejoin"
+	rejoinButton.Size = UDim2.fromOffset(88, 34)
+	rejoinButton.Position = UDim2.fromOffset(12, 12)
+	rejoinButton.BackgroundColor3 = Color3.fromRGB(42, 42, 48)
+	rejoinButton.BorderSizePixel = 0
+	rejoinButton.Font = Enum.Font.GothamMedium
+	rejoinButton.TextSize = 14
+	rejoinButton.TextColor3 = Color3.fromRGB(235, 235, 235)
+	rejoinButton.Text = "Rejoin"
+	rejoinButton.Parent = rejoinGui
+
+	local rejoinCorner = Instance.new("UICorner")
+	rejoinCorner.CornerRadius = UDim.new(0, 6)
+	rejoinCorner.Parent = rejoinButton
+
+	rejoinButton.MouseButton1Click:Connect(function()
+		TeleportService:TeleportToPlaceInstance(game.PlaceId, game.JobId, localPlayer)
+	end)
+end
