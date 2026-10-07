@@ -37,7 +37,7 @@ No necesitas Luarmor ni una página con AdSense. Sí necesitas **un servicio en 
 
 Si ves **Current Application: i-Hub** y el código Lua con `name`, `ownerid`, `version`:
 
-1. Esos tres valores deben coincidir con `env.lua` en el repo:
+1. Esos tres valores deben coincidir con `keyauthConfig` en `Loader.lua`:
    - `name = "i-Hub"`
    - `ownerid = "XAJER0bAfC"` (el tuyo del panel)
    - `version = "1.0"`
@@ -78,7 +78,7 @@ Si no encuentras Settings, manda captura del menú lateral con la app **i-Hub** 
    ```lua
    loadstring(game:HttpGet("https://raw.githubusercontent.com/ihubreal/iHub/refs/heads/main/Loader.lua"))()
    ```
-   (o `readfile` local si aún no subiste `Loader.lua` + `env.lua` + `auth/keyauth.lua`).
+   (o `readfile` local si aún no subiste `Loader.lua` + `auth/keyauth.lua`).
 
 6. En el Loader: pega key → **Verify key** → debe decir **License OK** y cargar el juego.
 
@@ -334,11 +334,10 @@ La monetización del locker **no** protege el código si el `.lua` está en `raw
 
 | Archivo | Uso |
 |---------|-----|
-| `env.lua` | `keyauth.enabled`, `name`, `ownerid`, `version` (como en el panel KeyAuth). |
-| `env.example.lua` | Plantilla sin tus IDs. |
-| `auth/keyauth.lua` | `init` + `license` + HWID. |
-| `Loader.lua` | Input **Verify key** → luego descarga el juego. |
+| `Loader.lua` | `keyauthConfig` (`enabled`, `name`, `ownerid`, `version`) + UI **Verify key** → descarga el juego. |
+| `auth/keyauth.lua` | `init` + `license` + HWID (el Loader lo baja de GitHub). |
+| `env.example.lua` | Solo referencia de campos KeyAuth (no se carga en runtime). |
 
-Para desactivar KeyAuth en pruebas locales: en `env.lua` pon `enabled = false`.
+Para desactivar KeyAuth en pruebas: en `Loader.lua` pon `keyauthConfig.enabled = false`.
 
-Sube a GitHub `env.lua`, `auth/keyauth.lua` y `Loader.lua` para que el Loader remoto valide keys.
+Sube a GitHub `auth/keyauth.lua` y `Loader.lua` para que el Loader remoto valide keys.

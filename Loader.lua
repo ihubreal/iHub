@@ -13,6 +13,15 @@ local HttpService = game:GetService("HttpService")
 
 local Base = "https://raw.githubusercontent.com/ihubreal/iHub/refs/heads/main"
 
+-- KeyAuth (mismos valores que en el panel: Application, no Seller key)
+local keyauthConfig = {
+	enabled = true,
+	name = "i-Hub",
+	ownerid = "XAJER0bAfC",
+	version = "1.0",
+}
+local keyauthEnabled = keyauthConfig.enabled == true
+
 local LoaderState = {}
 
 local function loadModule(path)
@@ -57,10 +66,7 @@ local function loadModule(path)
 	return nil
 end
 
-local Env = loadModule("env.lua")
 local KeyAuth = loadModule("auth/keyauth.lua")
-local keyauthConfig = type(Env) == "table" and Env.keyauth or nil
-local keyauthEnabled = type(keyauthConfig) == "table" and keyauthConfig.enabled == true
 
 local function placeName(placeId)
 	local ok, info = pcall(function()
